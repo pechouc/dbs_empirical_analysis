@@ -7,3 +7,7 @@ data/oecd_cbcr.csv
 
 data/BACI_HS12_V202201/*
 data/Gravity_csv_V202202/*
+
+data/tax_treaties.csv
+
+latex_outputs/*.tex
