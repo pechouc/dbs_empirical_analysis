@@ -14,6 +14,7 @@ git clone git@github.com:pechouc/dbs_empirical_analysis.git
 
 As an alternative, you can for instance download it as a `.zip` archive as in this picture:
 
+<img src="assets/screenshot_README.png" width="600"/>
 
 ### Collecting the missing data files
 
