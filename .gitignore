@@ -1,2 +1,9 @@
 .DS_Store
 */.DS_Store
+
+data/BACI_HS12_V202201.zip
+data/Gravity_csv_V202202.zip
+data/oecd_cbcr.csv
+
+data/BACI_HS12_V202201/*
+data/Gravity_csv_V202202/*
