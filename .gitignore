@@ -11,3 +11,16 @@ data/Gravity_csv_V202202/*
 data/tax_treaties.csv
 
 latex_outputs/*.tex
+
+__pycache__/
+
+*.log
+
+*regression_data.csv
+*regression_data.dta
+
+*market_access*.csv
+*market_access*.dta
+
+*model_data.csv
+*model_data.dta
