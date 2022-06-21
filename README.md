@@ -6,7 +6,7 @@ For my master thesis at Institut Polytechnique de Paris, this repository accompa
 
 ### Fetching the code and data
 
-To run the code and replicate the econometric analysis, you can first clone this repository with the following command:
+To run the code and replicate the analysis, you can clone this repository with the following command:
 
 ```
 git clone git@github.com:pechouc/dbs_empirical_analysis.git
@@ -38,3 +38,7 @@ sh protocol.sh
 ```
 
 The results will be stored directly as LaTeX outputs in the dedicated folder (`latex_outputs`).
+
+## Additional remarks
+
+I am working on these topics for my master thesis, as part of the second year of the Master in Economics of Institut Polytechnique de Paris. The goal of this econometric analysis is to evaluate, based on country-by-country report statistics, whether and to what extent multinational companies' unrelated-party revenues respond to corporate income taxation. For any remark or question, feel free to write to paul-emmanuel.chouc@ensae.fr.
