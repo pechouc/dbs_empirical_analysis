@@ -253,7 +253,19 @@ def get_preprocessed_gravity_data():
 
     path_to_file = os.path.join(path_to_data, 'Gravity_csv_V202202', 'Gravity_V202202.csv')
 
-    gravity = pd.read_csv(path_to_file)
+    if 'gravity_dtypes.csv' not in os.listdir(path_to_data):
+        gravity = pd.read_csv(path_to_file)
+
+        gravity.dtypes.to_csv(os.path.join(path_to_data, 'gravity_dtypes.csv'))
+
+    else:
+        dtypes = pd.read_csv(
+            os.path.join(path_to_data, 'gravity_dtypes.csv')
+        ).set_index(
+            'Unnamed: 0'
+        ).to_dict()['0']
+
+        gravity = pd.read_csv(path_to_file, dtype=dtypes)
 
     gravity = gravity[gravity['year'].isin([2016, 2017, 2018, 2019])].copy()
 
@@ -343,7 +355,7 @@ def get_HR_tax_havens():
     return HR_tax_havens.copy()
 
 
-def get_tax_environment_variables():
+def get_tax_environment_variables(include_FATCA):
 
     path_to_file = os.path.join(path_to_data, 'tax_treaties.csv')
     tax_treaties = pd.read_csv(path_to_file)
@@ -365,9 +377,16 @@ def get_tax_environment_variables():
             tax_treaties['signed'] <= pd.Timestamp(year=year, month=12, day=31)
         ].copy()
 
-        tieas_signed = tax_treaties_signed[
-            tax_treaties_signed['agreement_type'] == 'TIEA'
-        ].copy()
+        if not include_FATCA:
+            tieas_signed = tax_treaties_signed[
+                tax_treaties_signed['agreement_type'] == 'TIEA'
+            ].copy()
+
+        else:
+            tieas_signed = tax_treaties_signed[
+                tax_treaties_signed['agreement_type'].isin(['TIEA', 'FATCA'])
+            ].copy()
+
         dtcs_signed = tax_treaties_signed[
             tax_treaties_signed['agreement_type'] == 'DTC'
         ].copy()
@@ -378,6 +397,10 @@ def get_tax_environment_variables():
         tieas_signed = tieas_signed[
             ['PARENT_COUNTRY_CODE', 'PARTNER_COUNTRY_CODE', 'TIEA_SIGNED']
         ].copy()
+
+        if include_FATCA:
+            tieas_signed = tieas_signed.drop_duplicates().copy()
+
         dtcs_signed = dtcs_signed[
             ['PARENT_COUNTRY_CODE', 'PARTNER_COUNTRY_CODE', 'DTC_SIGNED']
         ].copy()
@@ -403,9 +426,17 @@ def get_tax_environment_variables():
             tax_treaties['entered_into_force'] <= pd.Timestamp(year=year, month=12, day=31)
         ].copy()
 
-        tieas_enforced = tax_treaties_enforced[
-            tax_treaties_enforced['agreement_type'] == 'TIEA'
-        ].copy()
+        if not include_FATCA:
+            tieas_enforced = tax_treaties_enforced[
+                tax_treaties_enforced['agreement_type'] == 'TIEA'
+            ].copy()
+
+        else:
+            tieas_enforced = tax_treaties_enforced[
+                tax_treaties_enforced['agreement_type'].isin(['TIEA', 'FATCA'])
+            ].copy()
+
+
         dtcs_enforced = tax_treaties_enforced[
             tax_treaties_enforced['agreement_type'] == 'DTC'
         ].copy()
@@ -416,6 +447,10 @@ def get_tax_environment_variables():
         tieas_enforced = tieas_enforced[
             ['PARENT_COUNTRY_CODE', 'PARTNER_COUNTRY_CODE', 'TIEA_ENFORCED']
         ].copy()
+
+        if include_FATCA:
+            tieas_enforced = tieas_enforced.drop_duplicates().copy()
+
         dtcs_enforced = dtcs_enforced[
             ['PARENT_COUNTRY_CODE', 'PARTNER_COUNTRY_CODE', 'DTC_ENFORCED']
         ].copy()

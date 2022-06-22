@@ -5,6 +5,8 @@ from cbcr_data_preparation import *
 
 from data_preparation_utils import *
 
+include_FATCA = False
+
 
 def get_aggregate_US_CbCR_regression_data():
     irs = preprocess_aggregate_US_CbCR_data()
@@ -58,8 +60,10 @@ def get_aggregate_US_CbCR_regression_data():
         how='left'
     )
 
+    return irs.copy()
+
     # Adding tax environment variables
-    agreements = get_tax_environment_variables()
+    agreements = get_tax_environment_variables(include_FATCA=include_FATCA)
 
     agreements = agreements[agreements['PARENT_COUNTRY_CODE'] == 'USA'].copy()
     agreements = agreements.drop(columns=['PARENT_COUNTRY_CODE'])
@@ -164,7 +168,7 @@ def get_heckman_selection_model_data():
     )
 
     # Adding tax environment variables
-    agreements = get_tax_environment_variables()
+    agreements = get_tax_environment_variables(include_FATCA=include_FATCA)
 
     agreements = agreements[agreements['PARENT_COUNTRY_CODE'] == 'USA'].copy()
     agreements = agreements.drop(columns=['PARENT_COUNTRY_CODE'])
@@ -267,7 +271,7 @@ def get_per_industry_regression_data():
     )
 
     # Adding tax environment variables
-    agreements = get_tax_environment_variables()
+    agreements = get_tax_environment_variables(include_FATCA=include_FATCA)
 
     agreements = agreements[agreements['PARENT_COUNTRY_CODE'] == 'USA'].copy()
     agreements = agreements.drop(columns=['PARENT_COUNTRY_CODE'])
@@ -386,7 +390,7 @@ def get_bilateral_CbCR_regression_data():
     )
 
     # Adding tax environment variables
-    agreements = get_tax_environment_variables()
+    agreements = get_tax_environment_variables(include_FATCA=include_FATCA)
 
     oecd = oecd.merge(
         agreements,

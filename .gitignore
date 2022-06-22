@@ -24,3 +24,8 @@ __pycache__/
 
 *model_data.csv
 *model_data.dta
+
+*.ipynb
+.ipynb_checkpoints/
+
+data/gravity_dtypes.csv

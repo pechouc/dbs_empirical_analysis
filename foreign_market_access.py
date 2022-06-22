@@ -63,9 +63,22 @@ def get_preprocessed_trade_data():
 def get_preprocessed_gravity_data():
 
     path_to_dir = os.path.dirname(__file__)
-    file_name = os.path.join(path_to_dir, 'data', 'Gravity_csv_V202202', 'Gravity_V202202.csv')
+    path_to_data = os.path.join(path_to_dir, 'data')
+    file_name = os.path.join(path_to_data, 'Gravity_csv_V202202', 'Gravity_V202202.csv')
 
-    gravity = pd.read_csv(file_name)
+    if 'gravity_dtypes.csv' not in os.listdir(path_to_data):
+        gravity = pd.read_csv(file_name)
+
+        gravity.dtypes.to_csv(os.path.join(path_to_data, 'gravity_dtypes.csv'))
+
+    else:
+        dtypes = pd.read_csv(
+            os.path.join(path_to_data, 'gravity_dtypes.csv')
+        ).set_index(
+            'Unnamed: 0'
+        ).to_dict()['0']
+
+        gravity = pd.read_csv(file_name, dtype=dtypes)
 
     gravity = gravity[gravity['year'].isin([2016, 2017, 2018, 2019])].copy()
 

@@ -42,35 +42,35 @@ eststo: quietly regress log_unrelated_party_revenues stat_rate log_ngdpd log_fma
 estadd local gravity_controls Yes
 estadd local fe Yes
 
-eststo: quietly regress log_unrelated_party_revenues stat_rate is_tax_haven_twz log_ngdpd log_fma log_dist is_domestic contig comlang_off comlang_ethno col45 is_eu rta i.year, robust
-estadd local gravity_controls Yes
-estadd local fe Yes
-
-eststo: quietly regress log_unrelated_party_revenues stat_rate is_tax_haven_hr log_ngdpd log_fma log_dist is_domestic contig comlang_off comlang_ethno col45 is_eu rta i.year, robust
-estadd local gravity_controls Yes
-estadd local fe Yes
-
-eststo: quietly regress log_unrelated_party_revenues stat_rate is_tax_haven_twz tiea_signed dtc_signed _dtc_signed log_ngdpd log_fma log_dist is_domestic contig comlang_off comlang_ethno col45 is_eu rta i.year, robust
-estadd local gravity_controls Yes
-estadd local fe Yes
-
-eststo: quietly regress log_unrelated_party_revenues stat_rate is_tax_haven_hr tiea_signed dtc_signed _dtc_signed log_ngdpd log_fma log_dist is_domestic contig comlang_off comlang_ethno col45 is_eu rta i.year, robust
-estadd local gravity_controls Yes
-estadd local fe Yes
-estadd local exclude_US Yes
-
-// eststo: quietly regress log_unrelated_party_revenues stat_rate is_tax_haven_twz tiea_enforced dtc_enforced _dtc_enforced log_ngdpd log_fma log_dist is_domestic contig comlang_off comlang_ethno col45 is_eu rta i.year, robust
+// eststo: quietly regress log_unrelated_party_revenues stat_rate tiea_signed dtc_signed _dtc_signed log_ngdpd log_fma log_dist is_domestic contig comlang_off comlang_ethno col45 is_eu rta i.year, robust
 // estadd local gravity_controls Yes
 // estadd local fe Yes
 //
-// eststo: quietly regress log_unrelated_party_revenues stat_rate is_tax_haven_hr tiea_enforced dtc_enforced _dtc_enforced log_ngdpd log_fma log_dist is_domestic contig comlang_off comlang_ethno col45 is_eu rta i.year, robust
+// eststo: quietly regress log_unrelated_party_revenues stat_rate is_tax_haven_twz tiea_signed dtc_signed _dtc_signed log_ngdpd log_fma log_dist is_domestic contig comlang_off comlang_ethno col45 is_eu rta i.year, robust
+// estadd local gravity_controls Yes
+// estadd local fe Yes
+//
+// eststo: quietly regress log_unrelated_party_revenues stat_rate is_tax_haven_hr tiea_signed dtc_signed _dtc_signed log_ngdpd log_fma log_dist is_domestic contig comlang_off comlang_ethno col45 is_eu rta i.year, robust
 // estadd local gravity_controls Yes
 // estadd local fe Yes
 // estadd local exclude_US Yes
 
+eststo: quietly regress log_unrelated_party_revenues stat_rate tiea_enforced dtc_enforced _dtc_enforced log_ngdpd log_fma log_dist is_domestic contig comlang_off comlang_ethno col45 is_eu rta i.year, robust
+estadd local gravity_controls Yes
+estadd local fe Yes
+
+eststo: quietly regress log_unrelated_party_revenues stat_rate is_tax_haven_twz tiea_enforced dtc_enforced _dtc_enforced log_ngdpd log_fma log_dist is_domestic contig comlang_off comlang_ethno col45 is_eu rta i.year, robust
+estadd local gravity_controls Yes
+estadd local fe Yes
+
+eststo: quietly regress log_unrelated_party_revenues stat_rate is_tax_haven_hr tiea_enforced dtc_enforced _dtc_enforced log_ngdpd log_fma log_dist is_domestic contig comlang_off comlang_ethno col45 is_eu rta i.year, robust
+estadd local gravity_controls Yes
+estadd local fe Yes
+estadd local exclude_US Yes
+
 // esttab, drop(is_domestic contig comlang_off comlang_ethno col45 is_eu rta *.year) p stats(gravity_controls fe N r2 r2_a, labels("Gravity control variables" "Year fixed effects" "Observations" "R-squared" "Adj. R-squared")) label addnote("Using robust standard errors.") star(* 0.10 ** 0.05 *** 0.01) replace
 
-esttab using "latex_outputs/table_tax_environment.tex", drop(is_domestic contig comlang_off comlang_ethno col45 is_eu rta *.year) p stats(gravity_controls fe N r2 r2_a, labels("Gravity control variables" "Year fixed effects" "Observations" "R-squared" "Adj. R-squared")) label addnote("Using robust standard errors.") star(* 0.10 ** 0.05 *** 0.01) order(stat_rate is_tax_haven_twz is_tax_haven_hr tiea_signed dtc_signed _dtc_signed) replace
+esttab using "latex_outputs/table_tax_environment.tex", drop(is_domestic contig comlang_off comlang_ethno col45 is_eu rta *.year) p stats(gravity_controls fe N r2 r2_a, labels("Gravity control variables" "Year fixed effects" "Observations" "R-squared" "Adj. R-squared")) label addnote("Using robust standard errors.") star(* 0.10 ** 0.05 *** 0.01) order(stat_rate is_tax_haven_twz is_tax_haven_hr tiea_enforced dtc_enforced _dtc_enforced) replace
 
 eststo clear
 
