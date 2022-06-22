@@ -82,9 +82,9 @@ eststo: quietly regress log_unrelated_party_revenues eatr eatr_squared log_ngdpd
 estadd local gravity_controls Yes
 estadd local fe Yes
 
-// esttab, drop(is_domestic contig comlang_off comlang_ethno col45 is_eu rta *.year) p stats(gravity_controls fe N r2 r2_a, labels("Gravity control variables" "Year fixed effects" "Observations" "R-squared" "Adj. R-squared")) label addnote("Using robust standard errors.") star(* 0.10 ** 0.05 *** 0.01) order(stat_rate stat_rate_squared eatr eatr_squared) replace
+// esttab, drop(is_domestic contig comlang_off comlang_ethno col45 is_eu rta *.year) p stats(gravity_controls fe N r2 r2_a, labels("Gravity control variables" "Year fixed effects" "Observations" "R-squared" "Adj. R-squared")) label addnote("Using robust standard errors.") star(* 0.10 ** 0.05 *** 0.01) replace
 
-esttab using "latex_outputs/table_non_linear_relationship.tex", drop(is_domestic contig comlang_off comlang_ethno col45 is_eu rta *.year) p stats(gravity_controls fe N r2 r2_a, labels("Gravity control variables" "Year fixed effects" "Observations" "R-squared" "Adj. R-squared")) label addnote("Using robust standard errors.") star(* 0.10 ** 0.05 *** 0.01) replace
+esttab using "latex_outputs/table_non_linear_relationship.tex", drop(is_domestic contig comlang_off comlang_ethno col45 is_eu rta *.year) p stats(gravity_controls fe N r2 r2_a, labels("Gravity control variables" "Year fixed effects" "Observations" "R-squared" "Adj. R-squared")) label addnote("Using robust standard errors.") star(* 0.10 ** 0.05 *** 0.01) order(stat_rate stat_rate_squared eatr eatr_squared) replace
 
 eststo clear
 

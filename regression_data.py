@@ -60,8 +60,6 @@ def get_aggregate_US_CbCR_regression_data():
         how='left'
     )
 
-    return irs.copy()
-
     # Adding tax environment variables
     agreements = get_tax_environment_variables(include_FATCA=include_FATCA)
 

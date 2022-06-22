@@ -728,8 +728,8 @@ def preprocess_bilateral_aggregate_CbCR_data():
         ]
     ].copy()
 
-    ser = oecd.groupby('COU').count()['JUR']
-    parents_with_sufficient_details = ser[ser >= 60].index
+    ser = oecd.groupby('COU').nunique()['JUR']
+    parents_with_sufficient_details = ser[ser >= 60 + 2].index
 
     oecd = oecd[oecd['COU'].isin(parents_with_sufficient_details)].copy()
 
