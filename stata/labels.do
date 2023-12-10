@@ -13,6 +13,7 @@ gen log_ngdpd = log(ngdpd)
 gen log_gdp_d = log(gdp_d)
 gen log_pop_pwt_d = log(pop_pwt_d)
 gen log_fma = log(fma)
+gen log_remoteness = log(remoteness)
 
 gen stat_rate_squared = stat_rate^2
 gen stat_rate_cube = stat_rate^3
@@ -42,6 +43,7 @@ label variable log_ngdpd "ln(GDP) - WOE"
 label variable log_gdp_d "ln(GDP) - WDI"
 label variable log_pop_pwt_d "ln(Population)"
 label variable log_fma "ln(Foreign Market Access)"
+label variable log_remoteness "ln(Remoteness)"
 
 label variable dist "Distance"
 label variable distcap "Distance between capitals"
@@ -60,6 +62,7 @@ label variable is_tax_haven_twz "TWZ tax haven classification"
 label variable is_tax_haven_hr "H\&R tax haven classification"
 
 label variable stat_rate "Statutory tax rate"
+label variable lagged_stat_rate "Lagged statutory tax rate"
 label variable stat_rate_squared "Squared statutory tax rate"
 label variable stat_rate_cube "Cube statutory tax rate"
 label variable eatr "EATR"
@@ -68,6 +71,8 @@ label variable eatr_cube "Cube EATR"
 label variable emtr "EMTR"
 label variable emtr_squared "Squared EMTR"
 label variable emtr_cube "Cube EMTR"
+label variable etr_cash_previous_year_posprofit "Lagged CbCR ETR (cash)"
+label variable etr_accrued_previous_year_pospro "Lagged CbCR ETR (accrued)"
 
 label variable tiea_signed "TIEA signed"
 label variable dtc_signed "DTC signed"
@@ -75,6 +80,8 @@ label variable tiea_enforced "TIEA enforced"
 label variable dtc_enforced "DTC enforced"
 label variable _dtc_signed "\# DTC signed / 100"
 label variable _dtc_enforced "\# DTC enforced / 100"
+
+label variable vat_rate "Consumption tax rate"
 
 save "US_CbCR_regression_data.dta", replace
 
@@ -143,6 +150,7 @@ label variable is_tax_haven_twz "TWZ tax haven classification"
 label variable is_tax_haven_hr "H\&R tax haven classification"
 
 label variable stat_rate "Statutory tax rate"
+label variable lagged_stat_rate "Lagged statutory tax rate"
 label variable stat_rate_squared "Squared statutory tax rate"
 label variable stat_rate_cube "Cube statutory tax rate"
 label variable eatr "EATR"
@@ -172,7 +180,8 @@ gen log_total_revenues = log(total_revenues)
 gen log_profits = log(profit_before_tax)
 
 gen log_dist = log(dist)
-gen log_ngdpd = log(ngdpd)
+gen log_ngdpd_parent = log(ngdpd_parent)
+gen log_ngdpd_partner = log(ngdpd_partner)
 gen log_gdp_d = log(gdp_d)
 gen log_pop_pwt_d = log(pop_pwt_d)
 gen log_fma = log(fma)
@@ -204,14 +213,16 @@ label variable log_total_revenues "ln(TR)"
 label variable log_profits "ln(PBT)"
 
 label variable log_dist "ln(Distance)"
-label variable log_ngdpd "ln(GDP) - WOE"
-label variable log_gdp_d "ln(GDP) - WDI"
+label variable log_ngdpd_parent "ln(GDP of parent country) - WOE"
+label variable log_ngdpd_partner "ln(GDP of partner country) - WOE"
+label variable log_gdp_d "ln(GDP of partner country) - WDI"
 label variable log_pop_pwt_d "ln(Population)"
 label variable log_fma "ln(Foreign Market Access)"
 
 label variable dist "Distance"
 label variable distcap "Distance between capitals"
-label variable ngdpd "GDP - WOE"
+label variable ngdpd_parent "GDP of parent country - WOE"
+label variable ngdpd_partner "GDP of partner country - WOE"
 label variable gdp_d "GDP - WDI"
 label variable pop_pwt_d "Population"
 label variable is_domestic "Domestic"
@@ -226,6 +237,7 @@ label variable is_tax_haven_twz "TWZ tax haven classification"
 label variable is_tax_haven_hr "H\&R tax haven classification"
 
 label variable stat_rate "Statutory tax rate"
+label variable lagged_stat_rate "Lagged statutory tax rate"
 label variable stat_rate_squared "Squared statutory tax rate"
 label variable stat_rate_cube "Cube statutory tax rate"
 label variable eatr "EATR"
@@ -306,6 +318,7 @@ label variable is_tax_haven_twz "TWZ tax haven classification"
 label variable is_tax_haven_hr "H\&R tax haven classification"
 
 label variable stat_rate "Statutory tax rate"
+label variable lagged_stat_rate "Lagged statutory tax rate"
 label variable stat_rate_squared "Squared statutory tax rate"
 label variable stat_rate_cube "Cube statutory tax rate"
 label variable eatr "EATR"

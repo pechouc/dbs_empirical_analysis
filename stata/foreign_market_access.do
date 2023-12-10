@@ -26,4 +26,4 @@ gen variable_to_sum = exp(mu_j_t) * phi_i_j_t
 
 collapse (sum) variable_to_sum, by(exp_x_y_FE)
 
-export delimited foreign_market_access.csv, delimiter(",")
+export delimited foreign_market_access.csv, delimiter(",") replace

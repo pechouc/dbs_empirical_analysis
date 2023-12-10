@@ -12,7 +12,7 @@ def get_preprocessed_trade_data():
     dataframes = {
         year: pd.read_csv(
             os.path.join(path_to_dir, 'data', 'BACI_HS12_V202201', f'BACI_HS12_Y{year}_V202201.csv')
-        ) for year in [2016, 2017, 2018, 2019]
+        ) for year in [2015, 2016, 2017, 2018, 2019, 2020]
     }
 
     long_df = pd.concat(list(dataframes.values()))
@@ -80,7 +80,7 @@ def get_preprocessed_gravity_data():
 
         gravity = pd.read_csv(file_name, dtype=dtypes)
 
-    gravity = gravity[gravity['year'].isin([2016, 2017, 2018, 2019])].copy()
+    gravity = gravity[gravity['year'].isin([2015, 2016, 2017, 2018, 2019, 2020])].copy()
 
     gravity = gravity[
         [

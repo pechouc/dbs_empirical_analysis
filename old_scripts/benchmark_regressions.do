@@ -1,3 +1,5 @@
+// Script used for my master thesis (June 2022)
+
 clear
 
 eststo clear

@@ -5,6 +5,8 @@ from cbcr_data_preparation import *
 
 from data_preparation_utils import *
 
+from VAT_rates_collection import get_VAT_rates
+
 include_FATCA = False
 
 
@@ -45,6 +47,15 @@ def get_aggregate_US_CbCR_regression_data():
         woe,
         on=['CODE', 'YEAR'],
         how='left'
+    )
+
+    # Adding US GDP
+    woe_restricted = woe[woe['CODE'] == 'USA'].drop(columns='CODE').rename(columns={'NGDPD': 'US_NGDPD'})
+
+    irs = irs.merge(
+        woe_restricted,
+        how='left',
+        on=['YEAR']
     )
 
     # Adding gravity control variables
@@ -105,6 +116,51 @@ def get_aggregate_US_CbCR_regression_data():
     )
 
     irs['IS_TAX_HAVEN_HR'] = irs['IS_TAX_HAVEN_HR'].fillna(0)
+
+    # Adding VAT rates
+    VAT_rates = get_VAT_rates()
+
+    irs = irs.merge(
+        VAT_rates,
+        how='left',
+        left_on='CODE', right_on='COUNTRY_CODE'
+    ).drop(columns='COUNTRY_CODE')
+
+    # Adding LPI scores
+    LPI_scores = get_LPI_scores()
+
+    irs = irs.merge(
+        LPI_scores,
+        how='left',
+        on='CODE'
+    )
+
+    # Adding mean monthly earnings
+    monthly_earnings = get_mean_monthly_earnings()
+
+    irs = irs.merge(
+        monthly_earnings,
+        how='left',
+        on=['CODE', 'YEAR']
+    )
+
+    # Adding upgraded mean monthly earnings
+    monthly_earnings = get_mean_monthly_earnings_upgraded()
+
+    irs = irs.merge(
+        monthly_earnings,
+        how='left',
+        on=['CODE', 'YEAR']
+    )
+
+    # Adding remoteness
+    remoteness = get_remoteness()
+
+    irs = irs.merge(
+        remoteness,
+        how='left',
+        on=['CODE', 'YEAR']
+    )
 
     return irs.copy()
 
@@ -314,6 +370,51 @@ def get_per_industry_regression_data():
 
     irs['IS_TAX_HAVEN_HR'] = irs['IS_TAX_HAVEN_HR'].fillna(0)
 
+    # Adding VAT rates
+    VAT_rates = get_VAT_rates()
+
+    irs = irs.merge(
+        VAT_rates,
+        how='left',
+        left_on='CODE', right_on='COUNTRY_CODE'
+    ).drop(columns='COUNTRY_CODE')
+
+    # Adding LPI scores
+    LPI_scores = get_LPI_scores()
+
+    irs = irs.merge(
+        LPI_scores,
+        how='left',
+        on='CODE'
+    )
+
+    # Adding mean monthly earnings
+    monthly_earnings = get_mean_monthly_earnings()
+
+    irs = irs.merge(
+        monthly_earnings,
+        how='left',
+        on=['CODE', 'YEAR']
+    )
+
+    # Adding upgraded mean monthly earnings
+    monthly_earnings = get_mean_monthly_earnings_upgraded()
+
+    irs = irs.merge(
+        monthly_earnings,
+        how='left',
+        on=['CODE', 'YEAR']
+    )
+
+    # Adding remoteness
+    remoteness = get_remoteness()
+
+    irs = irs.merge(
+        remoteness,
+        how='left',
+        on=['CODE', 'YEAR']
+    )
+
     return irs.copy()
 
 
@@ -363,17 +464,32 @@ def get_bilateral_CbCR_regression_data():
         how='left'
     )
 
-    # Adding GDP
+    # Adding GDP of the partner country
     woe = get_WOE_GDP_data()
     woe = woe.rename(
         columns={
-            'CODE': 'PARTNER_COUNTRY_CODE'
+            'CODE': 'PARTNER_COUNTRY_CODE',
+            'NGDPD': 'NGDPD_PARTNER'
         }
     )
 
     oecd = oecd.merge(
         woe,
         on=['PARTNER_COUNTRY_CODE', 'YEAR'],
+        how='left'
+    )
+
+    # Adding GDP of the headquarter country
+    woe = woe.rename(
+        columns={
+            'PARTNER_COUNTRY_CODE': 'PARENT_COUNTRY_CODE',
+            'NGDPD_PARTNER': 'NGDPD_PARENT'
+        }
+    )
+
+    oecd = oecd.merge(
+        woe,
+        on=['PARENT_COUNTRY_CODE', 'YEAR'],
         how='left'
     )
 

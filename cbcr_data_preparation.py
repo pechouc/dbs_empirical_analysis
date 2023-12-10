@@ -38,7 +38,7 @@ def preprocess_aggregate_US_CbCR_data(positive_profits=False):
     path_to_geographies = os.path.join(path_to_data, 'geographies.csv')
     geographies = pd.read_csv(path_to_geographies)
 
-    for year in [2016, 2017, 2018, 2019]:
+    for year in [2016, 2017, 2018, 2019, 2020]:
 
         if not positive_profits:
             path_to_file = os.path.join(path_to_data, 'irs', f'{year - 2000}it01acbc.xlsx')
@@ -51,14 +51,15 @@ def preprocess_aggregate_US_CbCR_data(positive_profits=False):
         )
 
         irs = irs.drop(
-            columns=list(irs.columns[8:])
+            columns=list(irs.columns[12:])
         )
 
         irs.columns = [
             'AFFILIATE_COUNTRY_NAME',
             'NB_REPORTING_MNEs',
             'UNRELATED_PARTY_REVENUES', 'RELATED_PARTY_REVENUES', 'TOTAL_REVENUES',
-            'PROFIT_BEFORE_TAX', 'TAXES_PAID', 'TAXES_ACCRUED'
+            'PROFIT_BEFORE_TAX', 'TAXES_PAID', 'TAXES_ACCRUED',
+            'STATED_CAPITAL', 'ACCUM_EARNINGS', 'NB_EMPLOYEES', 'TANGIBLE_ASSETS'
         ]
 
         irs = irs.loc[5:].copy()
@@ -86,6 +87,12 @@ def preprocess_aggregate_US_CbCR_data(positive_profits=False):
         )
 
         # We deal with a few specific country names
+        irs['AFFILIATE_COUNTRY_NAME'] = irs['AFFILIATE_COUNTRY_NAME'].map(
+            lambda country_name: 'Bosnia and Herzegovina' if 'Bosnia' in country_name else country_name
+        )
+        irs['AFFILIATE_COUNTRY_NAME'] = irs['AFFILIATE_COUNTRY_NAME'].map(
+            lambda country_name: 'Ivory Coast' if 'Ivory' in country_name else country_name
+        )
         irs['AFFILIATE_COUNTRY_NAME'] = irs['AFFILIATE_COUNTRY_NAME'].map(
             lambda country_name: 'United Kingdom' if 'United Kingdom' in country_name else country_name
         )
@@ -196,8 +203,8 @@ def preprocess_aggregate_US_CbCR_data(positive_profits=False):
             }
         ).reset_index()
 
-        temp['AVERAGE_ETR_CASH'] = temp['TAXES_PAID_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED']
-        temp['AVERAGE_ETR_ACCRUED'] = temp['TAXES_ACCRUED_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED']
+        temp['AVERAGE_ETR_CASH'] = temp['TAXES_PAID_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED'] * 100
+        temp['AVERAGE_ETR_ACCRUED'] = temp['TAXES_ACCRUED_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED'] * 100
 
         temp['AVERAGE_ETR_CASH'] = temp['AVERAGE_ETR_CASH'].map(lambda x: max(x, 0))
         temp['AVERAGE_ETR_ACCRUED'] = temp['AVERAGE_ETR_ACCRUED'].map(lambda x: max(x, 0))
@@ -211,10 +218,10 @@ def preprocess_aggregate_US_CbCR_data(positive_profits=False):
         # Adding average Effective Tax Rates (ETRs) excluding the year being considered - Full sample
         temp_dataframes = {}
 
-        for year in [2016, 2017, 2018, 2019]:
+        for year in [2016, 2017, 2018, 2019, 2020]:
             temp = irs[irs['YEAR'] != year].copy()
 
-            temp = irs.groupby(
+            temp = temp.groupby(
                 'CODE'
             ).agg(
                 {
@@ -224,8 +231,8 @@ def preprocess_aggregate_US_CbCR_data(positive_profits=False):
                 }
             ).reset_index()
 
-            temp['AVERAGE_ETR_CASH_EXCL'] = temp['TAXES_PAID_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED']
-            temp['AVERAGE_ETR_ACCRUED_EXCL'] = temp['TAXES_ACCRUED_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED']
+            temp['AVERAGE_ETR_CASH_EXCL'] = temp['TAXES_PAID_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED'] * 100
+            temp['AVERAGE_ETR_ACCRUED_EXCL'] = temp['TAXES_ACCRUED_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED'] * 100
 
             temp['AVERAGE_ETR_CASH_EXCL'] = temp['AVERAGE_ETR_CASH_EXCL'].map(lambda x: max(x, 0))
             temp['AVERAGE_ETR_ACCRUED_EXCL'] = temp['AVERAGE_ETR_ACCRUED_EXCL'].map(lambda x: max(x, 0))
@@ -243,8 +250,8 @@ def preprocess_aggregate_US_CbCR_data(positive_profits=False):
         )
 
         # Adding current year ETRs - Full sample
-        irs['ETR_CASH'] = irs['TAXES_PAID'] / irs['PROFIT_BEFORE_TAX']
-        irs['ETR_ACCRUED'] = irs['TAXES_ACCRUED'] / irs['PROFIT_BEFORE_TAX']
+        irs['ETR_CASH'] = irs['TAXES_PAID'] / irs['PROFIT_BEFORE_TAX'] * 100
+        irs['ETR_ACCRUED'] = irs['TAXES_ACCRUED'] / irs['PROFIT_BEFORE_TAX'] * 100
 
         irs['ETR_CASH'] = irs['ETR_CASH'].map(lambda x: max(x, 0))
         irs['ETR_ACCRUED'] = irs['ETR_ACCRUED'].map(lambda x: max(x, 0))
@@ -280,10 +287,10 @@ def preprocess_aggregate_US_CbCR_data(positive_profits=False):
 
         temp['AVERAGE_ETR_CASH_POSPROFITS'] = (
             temp['TAXES_PAID_POSPROFITS_UPGRADED'] / temp['PROFIT_BEFORE_TAX_POSPROFITS_UPGRADED']
-        )
+        ) * 100
         temp['AVERAGE_ETR_ACCRUED_POSPROFITS'] = (
             temp['TAXES_ACCRUED_POSPROFITS_UPGRADED'] / temp['PROFIT_BEFORE_TAX_POSPROFITS_UPGRADED']
-        )
+        ) * 100
 
         temp['AVERAGE_ETR_CASH_POSPROFITS'] = temp['AVERAGE_ETR_CASH_POSPROFITS'].map(lambda x: max(x, 0))
         temp['AVERAGE_ETR_ACCRUED_POSPROFITS'] = temp['AVERAGE_ETR_ACCRUED_POSPROFITS'].map(lambda x: max(x, 0))
@@ -297,10 +304,10 @@ def preprocess_aggregate_US_CbCR_data(positive_profits=False):
         # Adding average Effective Tax Rates (ETRs) excluding the year being considered - Positive-profits sub-sample
         temp_dataframes = {}
 
-        for year in [2016, 2017, 2018, 2019]:
+        for year in [2016, 2017, 2018, 2019, 2020]:
             temp = irs[irs['YEAR'] != year].copy()
 
-            temp = irs.groupby(
+            temp = temp.groupby(
                 'CODE'
             ).agg(
                 {
@@ -312,10 +319,10 @@ def preprocess_aggregate_US_CbCR_data(positive_profits=False):
 
             temp['AVERAGE_ETR_CASH_EXCL_POSPROFITS'] = (
                 temp['TAXES_PAID_POSPROFITS_UPGRADED'] / temp['PROFIT_BEFORE_TAX_POSPROFITS_UPGRADED']
-            )
+            ) * 100
             temp['AVERAGE_ETR_ACCRUED_EXCL_POSPROFITS'] = (
                 temp['TAXES_ACCRUED_POSPROFITS_UPGRADED'] / temp['PROFIT_BEFORE_TAX_POSPROFITS_UPGRADED']
-            )
+            ) * 100
 
             temp['AVERAGE_ETR_CASH_EXCL_POSPROFITS'] = temp['AVERAGE_ETR_CASH_EXCL_POSPROFITS'].map(
                 lambda x: max(x, 0)
@@ -337,8 +344,8 @@ def preprocess_aggregate_US_CbCR_data(positive_profits=False):
         )
 
         # Adding current year ETRs - Positive-profits sub-sample
-        irs['ETR_CASH_POSPROFITS'] = irs['TAXES_PAID_POSPROFITS'] / irs['PROFIT_BEFORE_TAX_POSPROFITS']
-        irs['ETR_ACCRUED_POSPROFITS'] = irs['TAXES_ACCRUED_POSPROFITS'] / irs['PROFIT_BEFORE_TAX_POSPROFITS']
+        irs['ETR_CASH_POSPROFITS'] = irs['TAXES_PAID_POSPROFITS'] / irs['PROFIT_BEFORE_TAX_POSPROFITS'] * 100
+        irs['ETR_ACCRUED_POSPROFITS'] = irs['TAXES_ACCRUED_POSPROFITS'] / irs['PROFIT_BEFORE_TAX_POSPROFITS'] * 100
 
         irs['ETR_CASH_POSPROFITS'] = irs['ETR_CASH_POSPROFITS'].map(lambda x: max(x, 0))
         irs['ETR_ACCRUED_POSPROFITS'] = irs['ETR_ACCRUED_POSPROFITS'].map(lambda x: max(x, 0))
@@ -367,6 +374,7 @@ def preprocess_aggregate_US_CbCR_data(positive_profits=False):
                 'CODE', 'YEAR',
                 'NB_REPORTING_MNEs',
                 'UNRELATED_PARTY_REVENUES', 'RELATED_PARTY_REVENUES', 'TOTAL_REVENUES', 'PROFIT_BEFORE_TAX',
+                'STATED_CAPITAL', 'ACCUM_EARNINGS', 'NB_EMPLOYEES', 'TANGIBLE_ASSETS',
                 'AVERAGE_ETR_ACCRUED', 'AVERAGE_ETR_CASH',
                 'AVERAGE_ETR_CASH_EXCL', 'AVERAGE_ETR_ACCRUED_EXCL',
                 'ETR_CASH', 'ETR_ACCRUED',
@@ -388,17 +396,26 @@ def preprocess_per_industry_US_CbCR_data():
     path_to_geographies = os.path.join(path_to_data, 'geographies.csv')
     geographies = pd.read_csv(path_to_geographies)
 
-    for year in [2016, 2017, 2018, 2019]:
+    for year in [2016, 2017, 2018, 2019, 2020]:
 
         path_to_file = os.path.join(path_to_data, 'irs', f'{year - 2000}it02cbc.xlsx')
 
-        data = pd.read_excel(
-            path_to_file,
-            engine='openpyxl'
-        )
+
+        if year != 2020:
+            data = pd.read_excel(
+                path_to_file,
+                engine='openpyxl'
+            )
+
+        else:
+            data = pd.read_excel(
+                path_to_file,
+                engine='openpyxl',
+                sheet_name='Table 2 No Disclosure'
+            )
 
         # Eliminating irrelevant columns and rows
-        data = data[data.columns[:9]].copy()
+        data = data[data.columns[:13]].copy()
 
         data.columns = [
             'INDUSTRY',
@@ -409,7 +426,11 @@ def preprocess_per_industry_US_CbCR_data():
             'TOTAL_REVENUES',
             'PROFIT_BEFORE_TAX',
             'TAXES_PAID',
-            'TAXES_ACCRUED'
+            'TAXES_ACCRUED',
+            'STATED_CAPITAL',
+            'ACCUM_EARNINGS',
+            'NB_EMPLOYEES',
+            'TANGIBLE_ASSETS'
         ]
 
         data = data[
@@ -444,6 +465,12 @@ def preprocess_per_industry_US_CbCR_data():
             )
         )
 
+        data['AFFILIATE_COUNTRY_NAME'] = data['AFFILIATE_COUNTRY_NAME'].map(
+            lambda country_name: 'Bosnia and Herzegovina' if 'Bosnia' in country_name else country_name
+        )
+        data['AFFILIATE_COUNTRY_NAME'] = data['AFFILIATE_COUNTRY_NAME'].map(
+            lambda country_name: 'Ivory Coast' if 'Ivory' in country_name else country_name
+        )
         data['AFFILIATE_COUNTRY_NAME'] = data['AFFILIATE_COUNTRY_NAME'].map(
             lambda country_name: 'United Kingdom' if 'United Kingdom' in country_name else country_name
         )
@@ -509,8 +536,8 @@ def preprocess_per_industry_US_CbCR_data():
         }
     ).reset_index()
 
-    temp['AVERAGE_ETR_CASH'] = temp['TAXES_PAID_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED']
-    temp['AVERAGE_ETR_ACCRUED'] = temp['TAXES_ACCRUED_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED']
+    temp['AVERAGE_ETR_CASH'] = temp['TAXES_PAID_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED'] * 100
+    temp['AVERAGE_ETR_ACCRUED'] = temp['TAXES_ACCRUED_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED'] * 100
 
     temp['AVERAGE_ETR_CASH'] = temp['AVERAGE_ETR_CASH'].map(lambda x: max(x, 0))
     temp['AVERAGE_ETR_ACCRUED'] = temp['AVERAGE_ETR_ACCRUED'].map(lambda x: max(x, 0))
@@ -524,10 +551,10 @@ def preprocess_per_industry_US_CbCR_data():
     # Adding average Effective Tax Rates (ETRs) excluding the year being considered - Aggregate level
     temp_dataframes = {}
 
-    for year in [2016, 2017, 2018, 2019]:
+    for year in [2016, 2017, 2018, 2019, 2020]:
         temp = df[df['YEAR'] != year].copy()
 
-        temp = df.groupby(
+        temp = temp.groupby(
             'CODE'
         ).agg(
             {
@@ -537,8 +564,8 @@ def preprocess_per_industry_US_CbCR_data():
             }
         ).reset_index()
 
-        temp['AVERAGE_ETR_CASH_EXCL'] = temp['TAXES_PAID_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED']
-        temp['AVERAGE_ETR_ACCRUED_EXCL'] = temp['TAXES_ACCRUED_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED']
+        temp['AVERAGE_ETR_CASH_EXCL'] = temp['TAXES_PAID_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED'] * 100
+        temp['AVERAGE_ETR_ACCRUED_EXCL'] = temp['TAXES_ACCRUED_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED'] * 100
 
         temp['AVERAGE_ETR_CASH_EXCL'] = temp['AVERAGE_ETR_CASH_EXCL'].map(lambda x: max(x, 0))
         temp['AVERAGE_ETR_ACCRUED_EXCL'] = temp['AVERAGE_ETR_ACCRUED_EXCL'].map(lambda x: max(x, 0))
@@ -560,8 +587,8 @@ def preprocess_per_industry_US_CbCR_data():
 
     temp = temp.groupby(['CODE', 'YEAR']).sum().reset_index()
 
-    temp['ETR_CASH'] = temp['TAXES_PAID_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED']
-    temp['ETR_ACCRUED'] = temp['TAXES_ACCRUED_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED']
+    temp['ETR_CASH'] = temp['TAXES_PAID_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED'] * 100
+    temp['ETR_ACCRUED'] = temp['TAXES_ACCRUED_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED'] * 100
 
     temp['ETR_CASH'] = temp['ETR_CASH'].map(lambda x: max(x, 0))
     temp['ETR_ACCRUED'] = temp['ETR_ACCRUED'].map(lambda x: max(x, 0))
@@ -601,8 +628,8 @@ def preprocess_per_industry_US_CbCR_data():
         }
     ).reset_index()
 
-    temp['AVERAGE_ETR_CASH_INDUS'] = temp['TAXES_PAID_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED']
-    temp['AVERAGE_ETR_ACCRUED_INDUS'] = temp['TAXES_ACCRUED_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED']
+    temp['AVERAGE_ETR_CASH_INDUS'] = temp['TAXES_PAID_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED'] * 100
+    temp['AVERAGE_ETR_ACCRUED_INDUS'] = temp['TAXES_ACCRUED_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED'] * 100
 
     temp['AVERAGE_ETR_CASH_INDUS'] = temp['AVERAGE_ETR_CASH_INDUS'].map(lambda x: max(x, 0))
     temp['AVERAGE_ETR_ACCRUED_INDUS'] = temp['AVERAGE_ETR_ACCRUED_INDUS'].map(lambda x: max(x, 0))
@@ -616,10 +643,10 @@ def preprocess_per_industry_US_CbCR_data():
     # Adding average Effective Tax Rates (ETRs) excluding the year being considered - Industry level
     temp_dataframes = {}
 
-    for year in [2016, 2017, 2018, 2019]:
+    for year in [2016, 2017, 2018, 2019, 2020]:
         temp = df[df['YEAR'] != year].copy()
 
-        temp = df.groupby(
+        temp = temp.groupby(
             ['CODE', 'INDUSTRY']
         ).agg(
             {
@@ -629,8 +656,10 @@ def preprocess_per_industry_US_CbCR_data():
             }
         ).reset_index()
 
-        temp['AVERAGE_ETR_CASH_EXCL_INDUS'] = temp['TAXES_PAID_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED']
-        temp['AVERAGE_ETR_ACCRUED_EXCL_INDUS'] = temp['TAXES_ACCRUED_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED']
+        temp['AVERAGE_ETR_CASH_EXCL_INDUS'] = temp['TAXES_PAID_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED'] * 100
+        temp['AVERAGE_ETR_ACCRUED_EXCL_INDUS'] = (
+            temp['TAXES_ACCRUED_UPGRADED'] / temp['PROFIT_BEFORE_TAX_UPGRADED']
+        ) * 100
 
         temp['AVERAGE_ETR_CASH_EXCL_INDUS'] = temp['AVERAGE_ETR_CASH_EXCL_INDUS'].map(lambda x: max(x, 0))
         temp['AVERAGE_ETR_ACCRUED_EXCL_INDUS'] = temp['AVERAGE_ETR_ACCRUED_EXCL_INDUS'].map(lambda x: max(x, 0))
@@ -649,16 +678,16 @@ def preprocess_per_industry_US_CbCR_data():
 
     # Adding current year ETRs - Industry level
     df['ETR_CASH_INDUS'] = df.apply(
-        lambda row: row['TAXES_PAID'] / row['PROFIT_BEFORE_TAX'] if row['PROFIT_BEFORE_TAX'] > 0 else np.nan,
+        lambda row: row['TAXES_PAID'] / row['PROFIT_BEFORE_TAX'] * 100 if row['PROFIT_BEFORE_TAX'] > 0 else np.nan,
         axis=1
     )
     df['ETR_ACCRUED_INDUS'] = df.apply(
-        lambda row: row['TAXES_ACCRUED'] / row['PROFIT_BEFORE_TAX'] if row['PROFIT_BEFORE_TAX'] > 0 else np.nan,
+        lambda row: row['TAXES_ACCRUED'] / row['PROFIT_BEFORE_TAX'] * 100 if row['PROFIT_BEFORE_TAX'] > 0 else np.nan,
         axis=1
     )
 
-    df['ETR_CASH_INDUS'] = df['ETR_CASH'].map(lambda x: max(x, 0))
-    df['ETR_ACCRUED_INDUS'] = df['ETR_ACCRUED'].map(lambda x: max(x, 0))
+    df['ETR_CASH_INDUS'] = df['ETR_CASH_INDUS'].map(lambda x: max(x, 0))
+    df['ETR_ACCRUED_INDUS'] = df['ETR_ACCRUED_INDUS'].map(lambda x: max(x, 0))
 
     # Adding previous year ETRs - Industry level
     temp = df[['CODE', 'YEAR', 'INDUSTRY', 'ETR_CASH_INDUS', 'ETR_ACCRUED_INDUS']].copy()
@@ -683,6 +712,7 @@ def preprocess_per_industry_US_CbCR_data():
             'CODE', 'YEAR', 'INDUSTRY',
             'NB_REPORTING_MNEs',
             'UNRELATED_PARTY_REVENUES', 'RELATED_PARTY_REVENUES', 'TOTAL_REVENUES', 'PROFIT_BEFORE_TAX',
+            'STATED_CAPITAL', 'ACCUM_EARNINGS', 'NB_EMPLOYEES', 'TANGIBLE_ASSETS',
             'AVERAGE_ETR_ACCRUED', 'AVERAGE_ETR_CASH',
             'AVERAGE_ETR_CASH_EXCL', 'AVERAGE_ETR_ACCRUED_EXCL',
             'ETR_CASH', 'ETR_ACCRUED',
@@ -693,6 +723,24 @@ def preprocess_per_industry_US_CbCR_data():
             'ETR_CASH_PREVIOUS_YEAR_INDUS', 'ETR_ACCRUED_PREVIOUS_YEAR_INDUS',
         ]
     ].copy()
+
+    agg_irs = preprocess_aggregate_US_CbCR_data()
+
+    agg_irs = agg_irs[
+        [
+            'CODE', 'YEAR',
+            'AVERAGE_ETR_ACCRUED_POSPROFITS', 'AVERAGE_ETR_CASH_POSPROFITS',
+            'AVERAGE_ETR_CASH_EXCL_POSPROFITS', 'AVERAGE_ETR_ACCRUED_EXCL_POSPROFITS',
+            'ETR_CASH_POSPROFITS', 'ETR_ACCRUED_POSPROFITS',
+            'ETR_CASH_PREVIOUS_YEAR_POSPROFITS', 'ETR_ACCRUED_PREVIOUS_YEAR_POSPROFITS',
+        ]
+    ].copy()
+
+    df = df.merge(
+        agg_irs,
+        on=['CODE', 'YEAR'],
+        how='left'
+    )
 
     return df.copy()
 
@@ -724,7 +772,8 @@ def preprocess_bilateral_aggregate_CbCR_data():
             'COU', 'JUR', 'YEA',
             'UPR', 'RPR', 'TOT_REV',
             'PROFIT',
-            'CBCR_COUNT'
+            'CBCR_COUNT',
+            'STATED_CAPITAL', 'EARNINGS', 'EMPLOYEES', 'ASSETS'
         ]
     ].copy()
 
@@ -733,6 +782,62 @@ def preprocess_bilateral_aggregate_CbCR_data():
 
     oecd = oecd[oecd['COU'].isin(parents_with_sufficient_details)].copy()
 
+    # Adding current ETRs computed based on the positive-profit sub-sample
+    temp = pd.read_csv(path_to_file)
+
+    temp = temp[temp['PAN'] == 'PANELAI'].copy()
+
+    temp = temp.drop(
+        columns=[
+            'PAN', 'Grouping',
+            'Ultimate Parent Jurisdiction', 'Partner Jurisdiction',
+            'Variable', 'Year',
+            'Flag Codes', 'Flags'
+        ]
+    )
+
+    temp = temp.pivot(
+        index=['COU', 'JUR', 'YEA'],
+        columns=['CBC'],
+        values='Value'
+    ).reset_index()
+
+    temp = temp[
+        [
+            'COU', 'JUR', 'YEA',
+            'PROFIT', 'TAX_PAID', 'TAX_ACCRUED'
+        ]
+    ].copy()
+
+    temp['ETR_CASH_POSPROFITS'] = temp['TAX_PAID'] / temp['PROFIT'] * 100
+    temp['ETR_ACCRUED_POSPROFITS'] = temp['TAX_ACCRUED'] / temp['PROFIT'] * 100
+
+    temp['ETR_CASH_POSPROFITS'] = temp['ETR_CASH_POSPROFITS'].map(lambda x: max(x, 0))
+    temp['ETR_ACCRUED_POSPROFITS'] = temp['ETR_ACCRUED_POSPROFITS'].map(lambda x: max(x, 0))
+
+    oecd = oecd.merge(
+        temp,
+        how='left',
+        on=['COU', 'JUR', 'YEA']
+    )
+
+    # Adding previous year ETRs computed based on the positive-profit sub-sample
+    temp['YEA'] += 1
+
+    temp = temp.rename(
+        columns={
+            'ETR_CASH_POSPROFITS': 'ETR_CASH_PREVIOUS_YEAR_POSPROFITS',
+            'ETR_ACCRUED_POSPROFITS': 'ETR_ACCRUED_PREVIOUS_YEAR_POSPROFITS',
+        }
+    )
+
+    oecd = oecd.merge(
+        temp,
+        how='left',
+        on=['COU', 'JUR', 'YEA']
+    )
+
+    # Last step - Renaming columns
     oecd = oecd.rename(
         columns={
             'COU': 'PARENT_COUNTRY_CODE',
@@ -743,6 +848,9 @@ def preprocess_bilateral_aggregate_CbCR_data():
             'TOT_REV': 'TOTAL_REVENUES',
             'PROFIT': 'PROFIT_BEFORE_TAX',
             'CBCR_COUNT': 'NB_REPORTING_MNEs',
+            'EARNINGS': 'ACCUM_EARNINGS',
+            'EMPLOYEES': 'NB_EMPLOYEES',
+            'ASSETS': 'TANGIBLE_ASSETS'
         }
     )
 
